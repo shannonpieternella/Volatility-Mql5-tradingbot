@@ -1,0 +1,57 @@
+//+------------------------------------------------------------------+
+//|                                                     dealingrange |
+//|                                                                  |
+//|                                                                  |
+//+------------------------------------------------------------------+
+#include <Trade\Trade.mqh>
+CTrade trade;
+//+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//+------------------------------------------------------------------+
+
+double saveLow;
+double saveHigh;
+int saveTimeBuyDay2;
+void OnTick()
+  {
+// We calculate the Ask price
+   double Ask = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_ASK), _Digits);
+
+// We calculate the Bid price
+   double Bid = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_BID), _Digits);
+
+   MqlDateTime currentnow;
+   TimeToStruct(iTime(_Symbol, PERIOD_H1, 0), currentnow);
+
+   if(currentnow.hour == 3 || currentnow.hour == 6 || currentnow.hour == 9 || currentnow.hour == 12 || currentnow.hour == 15 || currentnow.hour == 18 || currentnow.hour == 21)
+     {
+      Print("Tijd " + currentnow.hour);
+      saveLow=iLow(_Symbol,PERIOD_H1, 1);
+      saveHigh=iHigh(_Symbol,PERIOD_H1, 1);
+
+      ObjectCreate(0, "arr ob low", OBJ_ARROW,0,iTime(_Symbol,PERIOD_H1, 1),iLow(_Symbol,PERIOD_H1, 1));
+      ObjectSetInteger(0, "arr ob high", OBJPROP_COLOR, clrRed);
+      ObjectSetInteger(0, "arr ob high", OBJPROP_BACK, true);
+      ObjectSetInteger(0, "arr ob high", OBJPROP_BORDER_TYPE, BORDER_FLAT);
+
+
+      ObjectCreate(0, "arr ob high", OBJ_ARROW,0,iTime(_Symbol,PERIOD_H1, 1),iHigh(_Symbol,PERIOD_H1, 1));
+      ObjectSetInteger(0, "arr ob high", OBJPROP_COLOR, clrBlue);
+      ObjectSetInteger(0, "arr ob high", OBJPROP_BACK, true);
+      ObjectSetInteger(0, "arr ob high", OBJPROP_BORDER_TYPE, BORDER_FLAT);
+
+     }
+
+   if(iLow(_Symbol,PERIOD_M1, 1) < saveLow && PositionsTotal() < 1 && (saveLow !=0 && saveHigh != 0))
+     {
+
+
+      trade.Sell(0.02, NULL, Bid, saveHigh,saveLow-60000*_Point, NULL);
+      //saveTimeBuyDay2=currentnow.day;
+      saveLow=0.0;
+      saveHigh=0.0;
+     }
+
+   if(iHigh(_Symbol,PERIOD_M1, 1) > saveHigh && PositionsTotal() < 1 && (saveLow !=0 && saveHigh != 0))
+     {
+
