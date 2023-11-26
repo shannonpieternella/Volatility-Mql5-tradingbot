@@ -20,6 +20,9 @@ void OnTick()
 // We calculate the Bid price
    double Bid = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_BID), _Digits);
 
+double normalLotsize = AccountInfoDouble(ACCOUNT_EQUITY) / 1500;
+   double lotsizeAuto = NormalizeDouble(normalLotsize,2);
+   
    MqlDateTime currentnow;
    TimeToStruct(iTime(_Symbol, PERIOD_H1, 0), currentnow);
 
@@ -46,7 +49,7 @@ void OnTick()
      {
 
 
-      trade.Sell(0.02, NULL, Bid, saveHigh,saveLow-60000*_Point, NULL);
+      trade.Sell(lotsizeAuto, NULL, Bid, saveHigh,saveLow-60000*_Point, NULL);
       //saveTimeBuyDay2=currentnow.day;
       saveLow=0.0;
       saveHigh=0.0;
@@ -55,3 +58,11 @@ void OnTick()
    if(iHigh(_Symbol,PERIOD_M1, 1) > saveHigh && PositionsTotal() < 1 && (saveLow !=0 && saveHigh != 0))
      {
 
+      trade.Buy(lotsizeAuto, NULL, Ask, saveLow,saveHigh+60000*_Point, NULL);
+
+      saveLow=0.0;
+      saveHigh=0.0;
+     }
+  }
+
+//+------------------------------------------------------------------+
